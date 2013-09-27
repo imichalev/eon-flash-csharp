@@ -1,0 +1,11 @@
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\bin\Debug\EON_FIRMWARE_FLASH.exe
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\bin\Debug\EON_FIRMWARE_FLASH.pdb
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.Form1.resources
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.Properties.Resources.resources
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.exe
+C:\Users\admin\Desktop\EON_FLASH\EON_FIRMWARE_FLASH\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.pdb
+C:\Users\admin\Desktop\eon-flash-csharp\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.exe
+C:\Users\admin\Desktop\eon-flash-csharp\EON_FIRMWARE_FLASH\obj\x86\Debug\EON_FIRMWARE_FLASH.pdb
