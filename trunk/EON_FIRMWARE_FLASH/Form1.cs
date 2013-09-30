@@ -56,6 +56,7 @@ namespace EON_FIRMWARE_FLASH
             serialPort1.Handshake = System.IO.Ports.Handshake.None;
             device = false;
             comboBox1.Items.Clear();
+            button2.Hide();
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
             {
                 PortName.Add(s);
@@ -115,12 +116,13 @@ namespace EON_FIRMWARE_FLASH
             } while (!tx_end);
 
             device = true;
-               label2.Text="Device Ready !";
+               label2.Text="Device is Ready !";
                label2.Show();
+               button2.Show();
 
              
                serialPort1.Close();
-               delay(1000);
+               //delay(1000);
 
                //Change speed 115200 for fast transfer
                // Change speed
@@ -383,19 +385,18 @@ namespace EON_FIRMWARE_FLASH
       }
       private bool Erase_Flash_Page(byte page , byte numbers)
       {
-         // if (device)
+          if (device)
           {
-              // Boot loader Send Erase Command 
-               
-              serialPort1.Write(ERASE, 0, 2);
-              // Wait for Answert
-              if (!Wait_Answert())
+             
+              label3.Text = "Erase flash";
+              label3.Show();
+              serialPort1.Write(ERASE, 0, 2);  //Erase Command 
+              if (!Wait_Answert()) // Wait for Answert
               {
                   MessageBox.Show("Err start Erase command");
                   device = false;
                   return false;
-              }
-         
+              }         
               byte[] ERASE_FLASH = new byte[numbers+3];
                ERASE_FLASH[0] = numbers;
                byte j=1;
@@ -406,9 +407,7 @@ namespace EON_FIRMWARE_FLASH
                    xor ^=i;
                }
 
-               ERASE_FLASH[j++] = xor;
-                         
-              // Send Erase page + nimners command
+              ERASE_FLASH[j++] = xor;                        
               serialPort1.Write(ERASE_FLASH ,0,j);
               serialPort1.ReadTimeout = 10000;
                 if (!Wait_Answert())
@@ -448,19 +447,18 @@ namespace EON_FIRMWARE_FLASH
 
 
 
-        private void Read_Flash()
+        private void Read_Flash(byte pages)
         {
             if (device)
             {
                 byte page;
                 uint adr = 0;
                 progressBar1.Value = progressBar1.Minimum;
+                progressBar1.Maximum = pages+1;
+                progressBar1.Show();
                 label3.Text = "Read flash";
                 label3.Show();
-                //progressBar1.t
-                progressBar1.Show();
-
-                for (page = 0; page < 128; page++)
+               for (page = 0; page <pages; page++)
                 {
                     Read_Flash_Page(page);
                     //Copy PAGE to FLASH_MEMORY
@@ -472,25 +470,32 @@ namespace EON_FIRMWARE_FLASH
 
                 }
             }
+            progressBar1.Hide();
+            label3.Text = "Read flash completed ";
             return;
 
         }
         private void Write_Flash()
-        {
-           device = true;
-             
+        {             
         if (device && (READ_FILE_LENGTH>0) )
             {
-                label3.Text = "Erase flash";
-                label3.Show();
+               
                 byte page =(byte) (READ_FILE_LENGTH / 1024);
-                if ((READ_FILE_LENGTH - 1024 * page) != 0) page++; 
-               if (Erase_Flash_Page(0, page)) 
+                if ((READ_FILE_LENGTH - 1024 * page) != 0) page++;
+                progressBar1.Value = progressBar1.Minimum;
+                progressBar1.Maximum = page;
+                progressBar1.Show();
+               
+
+              if (Erase_Flash_Page(0, page))  //Erase Flash 
                 {
+               label3.Text = "Write flash";
+               label3.Show();
                UInt32 address=0 ;
+               uint pagew = 0;
               
 
-         for (UInt32 flash_address =Flash_Start_Address  ; flash_address <= (Flash_Start_Address + 1024 * page); flash_address += 0x100)
+         for (UInt32 flash_address =Flash_Start_Address  ; flash_address <= (Flash_Start_Address + (1024 * page) -0x100 ); flash_address += 0x100)
                  {
                    // Console.Write(flash_address.ToString("X"));
                    // Console.Write("\n");
@@ -504,15 +509,10 @@ namespace EON_FIRMWARE_FLASH
                     Console.Write(flash_address.ToString("X"));
                     Console.Write("\n");
                     Write_Flash_Command(flash_address, 255);
-
-                    //string Stop = Console.ReadLine();
-                   
-                }
-
-
-         //string Stop = Console.ReadLine();
-
-                }
+                    pagew++;
+                    progressBar1.Value = (byte)(pagew/4) ;
+                  }
+               } 
 
 
 
@@ -520,16 +520,6 @@ namespace EON_FIRMWARE_FLASH
 
             }
         }
-
-
-
-        private void button2_Click(object sender, EventArgs e)
-      {
-
-          Read_Flash();
-      }
-
-
 
 
         private bool Save_File()
@@ -563,6 +553,39 @@ namespace EON_FIRMWARE_FLASH
 
             return false;  
 
+        }
+        private bool Compare_Flash()
+        {
+
+
+
+            //Read Flash  FLASH_MEMORY;
+            byte pages = (byte)(READ_FILE_LENGTH / 1024);
+            if ((READ_FILE_LENGTH - 1024 * pages) != 0) pages++;
+             
+            Read_Flash(pages);  //FLASH_MEMORY Read all Mememory 0x20000 128kb;
+
+            //Compare whith flash memory
+            if (READ_FILE_LENGTH > 0)
+            {
+                for (UInt32 i = 0; i <= READ_FILE_LENGTH-1; i++)
+                {
+                    if (FLASH_MEMORY[i] !=READ_FILE[i])
+                    {
+                        MessageBox.Show("Грешка в : " + i.ToString("X"));
+                        return false;
+                    }
+                }
+
+            }
+            else 
+            {
+                MessageBox.Show ("Няма избран файл");
+                return false;
+
+            }
+
+            return true;
         }
 
 
@@ -609,30 +632,24 @@ namespace EON_FIRMWARE_FLASH
 
 
         }
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Save_File();
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            Write_Flash();
-
-        }
-
-        private void button5_Click(object sender, EventArgs e)
+      
+        private void button2_Click_1(object sender, EventArgs e)
         {
             Read_File();
-        }
+            Write_Flash();
+            if (Compare_Flash())
+            {
+                MessageBox.Show("ALL is OK! \n Press EXIT ");
+                label3.Text="Compare is OK !";
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            Get_Flash_Command();
-        }
+            }
+            else
+            {
+                MessageBox.Show("Error");
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-              Write_Flash_Command(0x08000000, 255);
+            }
+           
+   
         }
       
     }
