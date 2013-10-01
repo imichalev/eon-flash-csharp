@@ -31,6 +31,7 @@ namespace EON_FIRMWARE_FLASH
         private char[] GET_FLASH = new char[15];
         private byte[] ERASE = new byte[] { 0x43, 0xBC };
         private byte[] WRITE = new byte[] { 0x31, 0xCE };
+        private byte[] GO = new byte[] { 0x21, 0xDE };
         private byte[] WRITE_FLASH = new byte[258];
         private bool Tick_Timer;
         private byte[] PAGE = new byte[0x400];
@@ -44,6 +45,7 @@ namespace EON_FIRMWARE_FLASH
             InitializeComponent();
             label2.Hide();
             label3.Hide();
+            button3.Hide();
             progressBar1.Hide();
             progressBar1.Minimum = 0;
             progressBar1.Maximum = 127;
@@ -72,6 +74,15 @@ namespace EON_FIRMWARE_FLASH
 
         private void button1_Click(object sender, EventArgs e)
         {
+
+            serialPort1.ReadTimeout = 1500;
+            serialPort1.BaudRate = 9600;
+            serialPort1.Handshake = System.IO.Ports.Handshake.None;
+            device = false;
+            comboBox1.Items.Clear();
+            button2.Hide();
+
+
             if (serialPort1.PortName == " " )
             {
                 MessageBox.Show("Не е избран порт или няма такъв!");
@@ -79,12 +90,14 @@ namespace EON_FIRMWARE_FLASH
             }
             try
             {
-                serialPort1.Open();
+                if (serialPort1.IsOpen) serialPort1.Close();
+                    serialPort1.Open();
             }
             catch
             {
                 MessageBox.Show("Портът е зает!",serialPort1 .PortName );
                 return;
+
             }
              
              //Send Message to enter in flash mode 
@@ -117,6 +130,7 @@ namespace EON_FIRMWARE_FLASH
 
             device = true;
                label2.Text="Device is Ready !";
+               button3.Show();
                label2.Show();
                button2.Show();
 
@@ -420,6 +434,35 @@ namespace EON_FIRMWARE_FLASH
           }
           return true;
       }
+      private void Go_Command(UInt32 address)
+      {
+          if (device)
+          {
+              serialPort1.Write(GO, 0, 2);
+              if (!Wait_Answert())
+              {
+                  MessageBox.Show("Err start GO command");
+                  device = false;
+                  return;
+              }
+
+              byte[] adr = new byte[5];
+              UInt32 test = address >> 24;
+              adr[0] = (byte)(address >> 24);
+              adr[1] = (byte)(address >> 16);
+              adr[2] = (byte)(address >> 8);
+              adr[3] = (byte)(address);
+              adr[4] = (byte)(adr[0] ^ adr[1] ^ adr[2] ^ adr[3]);
+              serialPort1.Write(adr, 0, 5);
+              if (!Wait_Answert())
+              {
+                  MessageBox.Show("Err GO ADDRESS command");
+                  device = false;
+                  return;
+              } 
+          }
+
+      }
 
 
         private void Read_Flash_Page( byte page)
@@ -506,8 +549,8 @@ namespace EON_FIRMWARE_FLASH
                         else WRITE_FLASH[index_address] = 0xFF;                                           
                     }
 
-                    Console.Write(flash_address.ToString("X"));
-                    Console.Write("\n");
+                    //Console.Write(flash_address.ToString("X"));
+                    //Console.Write("\n");
                     Write_Flash_Command(flash_address, 255);
                     pagew++;
                     progressBar1.Value = (byte)(pagew/4) ;
@@ -542,7 +585,7 @@ namespace EON_FIRMWARE_FLASH
 
                 catch (Exception _Ex)
                 {
-                    Console.Write(_Ex.ToString());
+                    //Console.Write(_Ex.ToString());
 
                 }
 
@@ -591,9 +634,9 @@ namespace EON_FIRMWARE_FLASH
 
         private bool  Read_File()
         {
-            READ_FILE_LENGTH = 0;
+           READ_FILE_LENGTH = 0;
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
-           openFileDialog1.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
+           openFileDialog1.Filter = "bin files (*.bin)|*.bin";
             openFileDialog1.FilterIndex = 2;
             openFileDialog1.RestoreDirectory = true;
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
@@ -611,18 +654,19 @@ namespace EON_FIRMWARE_FLASH
 
                     _FileStream.Read(READ_FILE, 0, (int)READ_FILE_LENGTH);
                     _FileStream.Close();
-                    return true;
+                if (MessageBox.Show("Коректен ли е файла: \n" + openFileDialog1.FileName, "При грешен файл ще повредите уствойството!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) return true;
+
+                    return false;
                 }
 
                 catch (Exception _Ex)
                 {
                     MessageBox.Show(_Ex.ToString());
-                    Console.Write(_Ex.ToString());
+                   // Console.Write(_Ex.ToString());                    
 
                 }
 
-             }
-
+             }        
 
             return false;  
 
@@ -635,22 +679,36 @@ namespace EON_FIRMWARE_FLASH
       
         private void button2_Click_1(object sender, EventArgs e)
         {
-            Read_File();
-            Write_Flash();
-            if (Compare_Flash())
-            {
-                MessageBox.Show("ALL is OK! \n Press EXIT ");
-                label3.Text="Compare is OK !";
-
-            }
-            else
-            {
-                MessageBox.Show("Error");
-
-            }
            
-   
+        if (Read_File())
+          {
+                  if (device)
+                 {
+                    Write_Flash();
+                    if (Compare_Flash())
+                    {
+                        MessageBox.Show("ALL is OK! \n Press GO  ");
+                        label3.Text = "Compare is OK !";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error");
+                    }
+                 }
+
+                else MessageBox.Show("Устройсвото не е готово!");
+           }
         }
-      
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Go_Command(0x08000000);
+            device = false;
+            label2.Hide();
+            label3.Hide();
+            button2.Hide();
+            button3.Hide();
+        }
+          
     }
 }
