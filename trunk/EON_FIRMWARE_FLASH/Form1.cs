@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
@@ -43,6 +43,10 @@ namespace EON_FIRMWARE_FLASH
         public Form1()
         {
             InitializeComponent();
+  
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.MaximizeBox = false;
+
             label2.Hide();
             label3.Hide();
             button3.Hide();
