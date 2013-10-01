@@ -402,7 +402,7 @@ namespace EON_FIRMWARE_FLASH
           if (device)
           {
              
-              label3.Text = "Erase flash";
+              label3.Text = "Erasing flash!";
               label3.Show();
               serialPort1.Write(ERASE, 0, 2);  //Erase Command 
               if (!Wait_Answert()) // Wait for Answert
@@ -499,7 +499,7 @@ namespace EON_FIRMWARE_FLASH
                 progressBar1.Value = progressBar1.Minimum;
                 progressBar1.Maximum = pages+1;
                 progressBar1.Show();
-                label3.Text = "Read flash";
+                label3.Text = "Reading flash!";
                 label3.Show();
                for (page = 0; page <pages; page++)
                 {
@@ -514,7 +514,7 @@ namespace EON_FIRMWARE_FLASH
                 }
             }
             progressBar1.Hide();
-            label3.Text = "Read flash completed ";
+            label3.Text = "Reading completed!";
             return;
 
         }
@@ -532,7 +532,7 @@ namespace EON_FIRMWARE_FLASH
 
               if (Erase_Flash_Page(0, page))  //Erase Flash 
                 {
-               label3.Text = "Write flash";
+               label3.Text = "Writing flash!";
                label3.Show();
                UInt32 address=0 ;
                uint pagew = 0;
@@ -687,7 +687,7 @@ namespace EON_FIRMWARE_FLASH
                     Write_Flash();
                     if (Compare_Flash())
                     {
-                        MessageBox.Show("ALL is OK! \n Press GO  ");
+                        MessageBox.Show(" OK! \n Press RUN   ");
                         label3.Text = "Compare is OK !";
                     }
                     else
