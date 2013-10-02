@@ -49,7 +49,7 @@ namespace EON_FIRMWARE_FLASH
 
             label2.Hide();
             label3.Hide();
-            button3.Hide();
+            button3.Enabled=false;
             progressBar1.Hide();
             progressBar1.Minimum = 0;
             progressBar1.Maximum = 127;
@@ -62,7 +62,7 @@ namespace EON_FIRMWARE_FLASH
             serialPort1.Handshake = System.IO.Ports.Handshake.None;
             device = false;
             comboBox1.Items.Clear();
-            button2.Hide();
+            button2.Enabled=false;
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
             {
                 PortName.Add(s);
@@ -84,7 +84,7 @@ namespace EON_FIRMWARE_FLASH
             serialPort1.Handshake = System.IO.Ports.Handshake.None;
             device = false;
             comboBox1.Items.Clear();
-            button2.Hide();
+            button2.Enabled=false;
 
 
             if (serialPort1.PortName == " " )
@@ -134,10 +134,9 @@ namespace EON_FIRMWARE_FLASH
 
             device = true;
                label2.Text="Device is Ready !";
-               button3.Show();
+               button3.Enabled=true;
                label2.Show();
-               button2.Show();
-
+               button2.Enabled  = true;
              
                serialPort1.Close();
                //delay(1000);
@@ -174,6 +173,9 @@ namespace EON_FIRMWARE_FLASH
              // serialPort1.PortName = comboBox1.Text;
             //MessageBox.Show("Eto ME");
         }
+
+  
+
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -710,9 +712,42 @@ namespace EON_FIRMWARE_FLASH
             device = false;
             label2.Hide();
             label3.Hide();
-            button2.Hide();
-            button3.Hide();
+            button2.Enabled = false;
+            button3.Enabled=false;
         }
-          
+
+        private void comboBox1_Click(object sender, EventArgs e)
+        {
+              bool for_each=false;
+            foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
+            {
+                for_each = true;
+                if (!PortName.Contains(s))
+                {
+                    PortName.Add(s); 
+                    PortName.Sort();
+                    comboBox1.Items.AddRange(PortName.ToArray());
+                }
+           }
+
+            if (!for_each)
+            {
+                PortName.Clear();
+                comboBox1.Items.Clear();
+                comboBox1.Text = "";
+                serialPort1.PortName = " ";
+                //comboBox1.SelectedIndex = -1;
+            }
+             
+            
+            //if (PortName.Count > 0) comboBox1.SelectedIndex = 
+            //else serialPort1.PortName = " ";
+
+
+        }
+
+      
+
+      
     }
 }
